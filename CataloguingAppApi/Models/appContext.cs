@@ -18,6 +18,7 @@ namespace CataloguingAppApi.Models
         }
 
         public virtual DbSet<Collectable> Collectables { get; set; }
+        public virtual DbSet<Image> Images { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -53,6 +54,24 @@ namespace CataloguingAppApi.Models
                 entity.Property(e => e.Title)
                     .HasMaxLength(45)
                     .HasColumnName("title");
+            });
+
+            modelBuilder.Entity<Image>(entity =>
+            {
+                entity.ToTable("image");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.Collectableid)
+                    .HasColumnName("collectableid");
+
+                entity.Property(e => e.Filename)
+                    .HasMaxLength(260)
+                    .HasColumnName("filename");
+
+                entity.Property(e => e.Data)
+                    .HasColumnType("blob")
+                    .HasColumnName("data");
             });
 
             OnModelCreatingPartial(modelBuilder);

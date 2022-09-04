@@ -24,7 +24,6 @@ builder.Services.AddDbContext<appContext>(opt =>
     opt.UseMySQL(builder.Configuration.GetConnectionString("AppDb"));
 });
 
-Console.WriteLine(builder.Configuration.GetConnectionString("AppDb"));
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
