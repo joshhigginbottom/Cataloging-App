@@ -1,8 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
-
-#nullable disable
 
 namespace CataloguingAppApi.Models
 {
@@ -17,18 +16,22 @@ namespace CataloguingAppApi.Models
         {
         }
 
-        public virtual DbSet<Collectable> Collectables { get; set; }
-        public virtual DbSet<Image> Images { get; set; }
+        public virtual DbSet<Collectable> Collectables { get; set; } = null!;
+        public virtual DbSet<Image> Images { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
+                optionsBuilder.UseMySql("name=AppDb", Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.0.28-mysql"));
             }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.UseCollation("utf8mb4_0900_ai_ci")
+                .HasCharSet("utf8mb4");
+
             modelBuilder.Entity<Collectable>(entity =>
             {
                 entity.ToTable("collectable");
@@ -36,7 +39,7 @@ namespace CataloguingAppApi.Models
                 entity.Property(e => e.Id).HasColumnName("id");
 
                 entity.Property(e => e.Currentworth)
-                    .HasColumnType("decimal(10,2)")
+                    .HasPrecision(10, 2)
                     .HasColumnName("currentworth");
 
                 entity.Property(e => e.Description)
@@ -44,7 +47,7 @@ namespace CataloguingAppApi.Models
                     .HasColumnName("description");
 
                 entity.Property(e => e.Pricepaid)
-                    .HasColumnType("decimal(10,2)")
+                    .HasPrecision(10, 2)
                     .HasColumnName("pricepaid");
 
                 entity.Property(e => e.Size)
@@ -60,18 +63,24 @@ namespace CataloguingAppApi.Models
             {
                 entity.ToTable("image");
 
+                entity.HasIndex(e => e.Collectableid, "image_collectable_idx");
+
                 entity.Property(e => e.Id).HasColumnName("id");
 
-                entity.Property(e => e.Collectableid)
-                    .HasColumnName("collectableid");
+                entity.Property(e => e.Collectableid).HasColumnName("collectableid");
+
+                entity.Property(e => e.Data)
+                    .HasColumnType("mediumblob")
+                    .HasColumnName("data");
 
                 entity.Property(e => e.Filename)
                     .HasMaxLength(260)
                     .HasColumnName("filename");
 
-                entity.Property(e => e.Data)
-                    .HasColumnType("blob")
-                    .HasColumnName("data");
+                entity.HasOne(d => d.Collectable)
+                    .WithMany(p => p.Images)
+                    .HasForeignKey(d => d.Collectableid)
+                    .HasConstraintName("image_collectable");
             });
 
             OnModelCreatingPartial(modelBuilder);

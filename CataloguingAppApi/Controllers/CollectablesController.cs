@@ -7,12 +7,14 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CataloguingAppApi.Models;
+using Microsoft.AspNetCore.OData.Query;
+using Microsoft.AspNetCore.OData.Routing.Controllers;
 
 namespace CataloguingAppApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CollectablesController : ControllerBase
+    public class CollectablesController : ODataController
     {
         private readonly appContext _context;
 
@@ -23,9 +25,10 @@ namespace CataloguingAppApi.Controllers
 
         // GET: api/Collectables
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Collectable>>> GetCollectables()
+        [EnableQuery]
+        public IQueryable<Collectable> GetCollectables()
         {
-            return await _context.Collectables.ToListAsync();
+            return _context.Collectables;
         }
 
         // GET: api/Collectables/5

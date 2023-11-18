@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CataloguingAppApi.Models;
+using Microsoft.AspNetCore.OData.Query;
 
 namespace CataloguingAppApi.Controllers
 {
@@ -22,6 +23,7 @@ namespace CataloguingAppApi.Controllers
 
         // GET: api/Images
         [HttpGet]
+        [EnableQuery]
         public async Task<ActionResult<IEnumerable<Image>>> GetImages()
         {
           if (_context.Images == null)
@@ -83,7 +85,7 @@ namespace CataloguingAppApi.Controllers
         // POST: api/Images
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Image>> PostImage(int collectableId)
+        public async Task<ActionResult<Image>> PostImage([FromForm] int collectableId)
         {
             if (_context.Images == null)
             {

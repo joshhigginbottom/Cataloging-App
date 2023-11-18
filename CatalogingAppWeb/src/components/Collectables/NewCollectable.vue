@@ -1,67 +1,34 @@
 <template>
-    <n-card size="medium">
-        <n-form>
-            <n-upload 
-                multiple
-                directory-dnd
-                action="https://localhost:7138/api/images"
-                ref="upload"
-                :default-upload="false"
-                @change="handleChange"
-                :max="5"
-                list-type="image-card"
-            >
-                <n-upload-dragger>
-                    <n-icon size="48" :depth="3">
-                        <ArchiveOutline />
-                    </n-icon>
-                    <!--<n-text style="font-size: 16px">
-                        Click or drag a file to this area to upload
-                    </n-text>-->
-                </n-upload-dragger>
-            </n-upload>
-            <n-divider />
-            <n-form-item label="Title">
-                <n-input type="text" v-model:value="collectable.Title" />
-            </n-form-item>
-            <n-form-item label="Description">
-                <n-input type="text" v-model:value="collectable.Description" />
-            </n-form-item>
-            <n-form-item label="Price Paid">
-                <n-input-number v-model:value="collectable.Pricepaid" />
-            </n-form-item>
-            <n-form-item label="Current Worth">
-                <n-input-number v-model:value="collectable.Currentworth" />
-            </n-form-item>
-            <n-form-item label="Size">
-                <n-input type="text" v-model:value="collectable.Size" />
-            </n-form-item>
-            <n-button @click="submit">Create</n-button>
-        </n-form>
-    </n-card>
+    <div>
+        <v-form>
+            <v-container fluid>
+                <v-row>
+                    <v-col cols="12">
+                        <v-file-input v-model="files" label="File input" chips multiple></v-file-input>
+                        <v-text-field v-model="collectable.Title" :rules="[v => !!v || 'Title is required']"
+                            :counter="10" label="Title" required>
+                        </v-text-field>
+                        <v-text-field v-model="collectable.Description" label="Description"></v-text-field>
+                        <v-text-field v-model="collectable.Pricepaid" label="Price Paid"></v-text-field>
+                        <v-text-field v-model="collectable.Currentworth" label="Current Worth"></v-text-field>
+                        <v-text-field v-model="collectable.Size" label="Size"></v-text-field>
+                        <v-btn @click="submit">Submit</v-btn>
+                    </v-col>
+                </v-row>
+            </v-container>
+        </v-form>
+    </div>
 </template>
 
 <script>
 import api from '../../api/api.js'
-import { ref } from 'vue';
-import { NInput, NInputNumber, NForm, NFormItem, NButton, NCard,  NUpload, NIcon, NUploadDragger, NDivider} from 'naive-ui'
-import { ArchiveOutline } from '@vicons/ionicons5'
 
 export default {
     name: 'NewCollectable',
     components: {
-        NDivider, NInput, NInputNumber, NForm, NFormItem, NButton, NCard,  NUpload, NIcon, NUploadDragger, ArchiveOutline
+
     },
-    setup(){
-        const fileListLengthRef = ref(0);
-        const uploadRef = ref(null);
-        return {
-            upload: uploadRef,
-            fileListLength: fileListLengthRef,
-            handleChange(data) {
-                fileListLengthRef.value = data.fileList.length;
-            }
-        }
+    setup() {
     },
     data() {
         return {
@@ -73,17 +40,30 @@ export default {
                 Currentworth: null,
                 Size: null,
             },
+            files: [],
         }
     },
     methods: {
-        submit() {
-            console.log(this.uploadRef);
-            this.uploadRef.value?.submit();
-            api.post('/collectables', this.collectable);
+        async submit() {
+            var collectable = (await api.post('/collectables', this.collectable)).data;
+
+            console.log(collectable);
+
+            this.files.forEach(f => {
+                var formData = new FormData();
+                formData.append("file", f);
+                formData.append("collectableId", collectable.id);
+                api.post('images', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                })
+            });
         },
     },
 }
 </script>
 
 <style>
+
 </style>

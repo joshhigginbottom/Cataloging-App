@@ -1,26 +1,19 @@
 <template>
-    <NavigationBar />
-    <router-view />
+  <v-app>
+    <Navigation />
+    <v-main>
+      <router-view/>
+    </v-main>
+  </v-app>
 </template>
 
 <script>
-import NavigationBar from "./components/Navigation.vue";
-
+import Navigation from './components/Navigation.vue'
 export default {
-  name: "App",
-  components: { 
-    NavigationBar,
-  },
+    name: "App",
+    data: () => ({
+    //
+    }),
+    components: { Navigation }
 }
 </script>
-
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 30px;
-}
-</style>
