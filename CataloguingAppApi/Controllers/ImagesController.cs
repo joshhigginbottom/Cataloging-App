@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using CataloguingAppApi.Models;
+using CataloguingAppApi.Data;
 using Microsoft.AspNetCore.OData.Query;
 
 namespace CataloguingAppApi.Controllers

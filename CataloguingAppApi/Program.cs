@@ -1,4 +1,4 @@
-using CataloguingAppApi.Models;
+using CataloguingAppApi.Data;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.AspNetCore.OData;
 using Microsoft.EntityFrameworkCore;
@@ -25,8 +25,9 @@ builder.Services.AddCors(options =>
 static IEdmModel GetEdmModel()
 {
     ODataConventionModelBuilder builder = new();
-    builder.EntitySet<Collectable>("Collectables");
+    builder.EntitySet<Collectable>("Collectables").EntityType.HasKey(e => e.Hierarchynodeid);
     builder.EntitySet<Image>("Images");
+    builder.EntitySet<CataloguingAppApi.Data.Directory>("Directories").EntityType.HasKey(e => e.Hierarchynodeid);
     return builder.GetEdmModel();
 }
 

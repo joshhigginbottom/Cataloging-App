@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace CataloguingAppApi.Models
+namespace CataloguingAppApi.Data
 {
     public partial class appContext : DbContext
     {
@@ -17,6 +17,8 @@ namespace CataloguingAppApi.Models
         }
 
         public virtual DbSet<Collectable> Collectables { get; set; } = null!;
+        public virtual DbSet<Directory> Directories { get; set; } = null!;
+        public virtual DbSet<Hierarchynode> Hierarchynodes { get; set; } = null!;
         public virtual DbSet<Image> Images { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -34,9 +36,16 @@ namespace CataloguingAppApi.Models
 
             modelBuilder.Entity<Collectable>(entity =>
             {
+                entity.HasKey(e => e.Hierarchynodeid)
+                    .HasName("PRIMARY");
+
                 entity.ToTable("collectable");
 
-                entity.Property(e => e.Id).HasColumnName("id");
+                entity.HasIndex(e => e.Hierarchynodeid, "fk_collectable_hierarchynode_idx");
+
+                entity.Property(e => e.Hierarchynodeid)
+                    .ValueGeneratedNever()
+                    .HasColumnName("hierarchynodeid");
 
                 entity.Property(e => e.Currentworth)
                     .HasPrecision(10, 2)
@@ -57,13 +66,59 @@ namespace CataloguingAppApi.Models
                 entity.Property(e => e.Title)
                     .HasMaxLength(45)
                     .HasColumnName("title");
+
+                entity.HasOne(d => d.Hierarchynode)
+                    .WithOne(p => p.Collectable)
+                    .HasForeignKey<Collectable>(d => d.Hierarchynodeid)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("fk_collectable_hierarchynode");
+            });
+
+            modelBuilder.Entity<Directory>(entity =>
+            {
+                entity.HasKey(e => e.Hierarchynodeid)
+                    .HasName("PRIMARY");
+
+                entity.ToTable("directory");
+
+                entity.Property(e => e.Hierarchynodeid)
+                    .ValueGeneratedNever()
+                    .HasColumnName("hierarchynodeid");
+
+                entity.Property(e => e.Name)
+                    .HasMaxLength(200)
+                    .HasColumnName("name")
+                    .UseCollation("utf8_general_ci")
+                    .HasCharSet("utf8");
+
+                entity.HasOne(d => d.Hierarchynode)
+                    .WithOne(p => p.Directory)
+                    .HasForeignKey<Directory>(d => d.Hierarchynodeid)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("fk_directory_hierarchynode");
+            });
+
+            modelBuilder.Entity<Hierarchynode>(entity =>
+            {
+                entity.ToTable("hierarchynode");
+
+                entity.HasIndex(e => e.ParentNodeId, "hierarchynode_hierarchynode_idx");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.ParentNodeId).HasColumnName("parentNodeId");
+
+                entity.HasOne(d => d.ParentNode)
+                    .WithMany(p => p.InverseParentNode)
+                    .HasForeignKey(d => d.ParentNodeId)
+                    .HasConstraintName("fk_hierarchynode_hierarchynode");
             });
 
             modelBuilder.Entity<Image>(entity =>
             {
                 entity.ToTable("image");
 
-                entity.HasIndex(e => e.Collectableid, "image_collectable_idx");
+                entity.HasIndex(e => e.Collectableid, "fk_image_collectable_idx");
 
                 entity.Property(e => e.Id).HasColumnName("id");
 
@@ -80,7 +135,7 @@ namespace CataloguingAppApi.Models
                 entity.HasOne(d => d.Collectable)
                     .WithMany(p => p.Images)
                     .HasForeignKey(d => d.Collectableid)
-                    .HasConstraintName("image_collectable");
+                    .HasConstraintName("fk_image_collectable");
             });
 
             OnModelCreatingPartial(modelBuilder);
