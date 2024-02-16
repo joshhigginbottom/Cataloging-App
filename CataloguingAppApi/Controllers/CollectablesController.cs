@@ -12,8 +12,6 @@ using Microsoft.AspNetCore.OData.Routing.Controllers;
 
 namespace CataloguingAppApi.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
     public class CollectablesController : ODataController
     {
         private readonly appContext _context;
@@ -24,11 +22,40 @@ namespace CataloguingAppApi.Controllers
         }
 
         // GET: api/Collectables
-        [HttpGet]
         [EnableQuery]
-        public IQueryable<Collectable> GetCollectables()
+        public ActionResult<IQueryable<Model.Collectable>> Get(/*ODataQueryOptions<Collectable> queryOptions*/)
         {
-            return _context.Collectables;
+            return Ok(_context.Collectables.AsQueryable().Select(f => new Model.Collectable
+                {
+                    Id = f.Hierarchynodeid,
+                    Title = f.Title,
+                    Description = f.Description,
+                    Pricepaid = f.Pricepaid,
+                    Currentworth = f.Currentworth,
+                    Size = f.Size,
+                    Images = f.Images.Select(i => new Model.Image() {
+                        Id = i.Id,
+                        Collectableid = i.Collectableid,
+                        Filename = i.Filename,
+                        Data = i.Data
+                    }).ToArray()
+                }));
+            /*
+            return Ok(queryOptions.ApplyTo(_context.Collectables.AsQueryable().Select(f => new Model.Collectable
+                {
+                    Id = f.Hierarchynodeid,
+                    Title = f.Title,
+                    Description = f.Description,
+                    Pricepaid = f.Pricepaid,
+                    Currentworth = f.Currentworth,
+                    Size = f.Size,
+                    Images = f.Images.Select(i => new Model.Image() {
+                        Id = i.Id,
+                        Collectableid = i.Collectableid,
+                        Filename = i.Filename,
+                        Data = i.Data
+                    }).ToArray()
+                })));*/
         }
 
         // GET: api/Collectables/5

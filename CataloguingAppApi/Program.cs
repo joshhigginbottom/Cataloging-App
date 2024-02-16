@@ -1,4 +1,5 @@
 using CataloguingAppApi.Data;
+using CataloguingAppApi.Model;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.AspNetCore.OData;
 using Microsoft.EntityFrameworkCore;
@@ -25,13 +26,13 @@ builder.Services.AddCors(options =>
 static IEdmModel GetEdmModel()
 {
     ODataConventionModelBuilder builder = new();
-    builder.EntitySet<Collectable>("Collectables").EntityType.HasKey(e => e.Hierarchynodeid);
-    builder.EntitySet<Image>("Images");
+    builder.EntitySet<CataloguingAppApi.Model.Collectable>("Collectables").EntityType.HasKey(e => e.Id);
+    builder.EntitySet<CataloguingAppApi.Model.Image>("Images");
     builder.EntitySet<CataloguingAppApi.Data.Directory>("Directories").EntityType.HasKey(e => e.Hierarchynodeid);
     return builder.GetEdmModel();
 }
 
-builder.Services.AddControllers().AddOData(opt => opt.AddRouteComponents("v1", GetEdmModel()).Filter().Select().Expand());
+builder.Services.AddControllers().AddOData(opt => opt.AddRouteComponents("v1", GetEdmModel()).EnableQueryFeatures().EnableNoDollarQueryOptions = false);
 
 builder.Services.AddDbContext<appContext>(opt =>
 {

@@ -33,7 +33,9 @@ export default {
     data() {
         return {
             collectable: {
-                Id: 0,
+                Hierarchynode: {
+                    id:0,
+                },
                 Title: null,
                 Description: null,
                 Pricepaid: null,
