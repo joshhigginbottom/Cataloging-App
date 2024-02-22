@@ -23,7 +23,7 @@ namespace CataloguingAppApi.Controllers
 
         // GET: api/Collectables
         [EnableQuery]
-        public ActionResult<IQueryable<Model.Collectable>> Get(/*ODataQueryOptions<Collectable> queryOptions*/)
+        public ActionResult<IQueryable<Model.Collectable>> Get()
         {
             return Ok(_context.Collectables.AsQueryable().Select(f => new Model.Collectable
                 {
@@ -39,37 +39,36 @@ namespace CataloguingAppApi.Controllers
                         Filename = i.Filename,
                         Data = i.Data
                     }).ToArray()
-                }));
-            /*
-            return Ok(queryOptions.ApplyTo(_context.Collectables.AsQueryable().Select(f => new Model.Collectable
-                {
-                    Id = f.Hierarchynodeid,
-                    Title = f.Title,
-                    Description = f.Description,
-                    Pricepaid = f.Pricepaid,
-                    Currentworth = f.Currentworth,
-                    Size = f.Size,
-                    Images = f.Images.Select(i => new Model.Image() {
-                        Id = i.Id,
-                        Collectableid = i.Collectableid,
-                        Filename = i.Filename,
-                        Data = i.Data
-                    }).ToArray()
-                })));*/
+                })
+            );
         }
 
         // GET: api/Collectables/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Collectable>> GetCollectable(int id)
+        [EnableQuery]
+        public async Task<ActionResult<Model.Collectable>> GetCollectable(int key)
         {
-            var collectable = await _context.Collectables.FindAsync(id);
+            var collectable = await _context.Collectables.FindAsync(key);
 
             if (collectable == null)
             {
                 return NotFound();
             }
 
-            return collectable;
+            return Ok(new Model.Collectable
+                {
+                    Id = collectable.Hierarchynodeid,
+                    Title = collectable.Title,
+                    Description = collectable.Description,
+                    Pricepaid = collectable.Pricepaid,
+                    Currentworth = collectable.Currentworth,
+                    Size = collectable.Size,
+                    Images = collectable.Images.Select(i => new Model.Image() {
+                        Id = i.Id,
+                        Collectableid = i.Collectableid,
+                        Filename = i.Filename,
+                        Data = i.Data
+                    }).ToArray()
+                });
         }
 
         // PUT: api/Collectables/5
